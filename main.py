@@ -1,0 +1,45 @@
+"""
+DarkSON - Assistente de Voz Inteligente
+Suporta: Groq, Gemini, Ollama
+"""
+
+from __future__ import annotations
+
+import sys
+
+from core.settings import settings
+
+
+def main() -> None:
+    provider = settings.ai_provider
+
+    if provider == "groq" and not settings.groq_api_key:
+        print("=" * 60)
+        print("  DarkSON - Assistente de Voz Inteligente")
+        print("=" * 60)
+        print()
+        print("  ERRO: Chave da API Groq não configurada!")
+        print()
+        print("  1. Abra https://console.groq.com/")
+        print("  2. Crie uma API Key")
+        print("  3. Coloque no .env: GROQ_API_KEY=sua_chave")
+        print()
+        print("=" * 60)
+        sys.exit(1)
+    elif provider == "gemini" and not settings.gemini_api_key:
+        print("=" * 60)
+        print("  ERRO: Chave da API Gemini não configurada!")
+        print("=" * 60)
+        sys.exit(1)
+
+    from interface_darkson import DarksonApp
+
+    app = DarksonApp()
+    try:
+        app.mainloop()
+    except KeyboardInterrupt:
+        app.parar()
+
+
+if __name__ == "__main__":
+    main()

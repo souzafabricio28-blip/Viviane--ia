@@ -1,0 +1,39 @@
+# Ambiente
+.env
+.env.local
+.env.production
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+*.pyc
+
+# Dados gerados
+data/
+imagens/
+
+# Logs
+*.log
+voice_errors.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temp
+temp_ecra.png
+*.mp3
+*.wav

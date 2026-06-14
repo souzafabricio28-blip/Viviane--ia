@@ -1,0 +1,29 @@
+Olá! Para usar a DarkSON com seu headset, você precisa configurar o microfone no Windows:
+
+1. ✅ Conecte o headset no PC
+
+2. 🔧 **Configurar o microfone:**
+   - Clique direito no **ícone de som** (bandeja do sistema, ao lado do relógio)
+   - Selecione **"Abrir configurações de som"**
+   - Em **"Entrada"**, veja se o headset aparece como dispositivo
+   - Selecione o microfone correto
+
+3. 🎤 **Testar o microfone:**
+   - Fale algo perto do microfone
+   - A barra azul deve se mover
+
+4. 🔇 **Verifique se não está mutado:**
+   - Clique direito no ícone de som > **"Abrir mixer de volume"**
+   - Verifique se o microfone não tem um X vermelho
+
+5. 🖥️ **Se o headset não aparecer:**
+   - Seu PC pode ter 2 entradas separadas (verde = fone, rosa = microfone)
+   - Verifique se o plug do microfone está na entrada ROSA
+   - Ou compre um adaptador Y (splitter) se for headset de celular
+
+**Depois de configurar, execute este comando para testar:**
+```
+python test_levels.py
+```
+
+E **FALE ALGO** durante o teste!

@@ -32,13 +32,17 @@ def main() -> None:
         print("=" * 60)
         sys.exit(1)
 
-    from interface_darkson import DarksonApp
+    from core.assistant import Assistente
 
-    app = DarksonApp()
+    assistente = Assistente()
+    print("=" * 60)
+    print("  DarkSON - Modo Voz (console)")
+    print("  Fale um comando ou pressione Ctrl+C para sair")
+    print("=" * 60)
     try:
-        app.mainloop()
+        assistente.iniciar()
     except KeyboardInterrupt:
-        app.parar()
+        assistente.parar()
 
 
 if __name__ == "__main__":

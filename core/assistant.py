@@ -247,7 +247,6 @@ class Assistente:
                 return self.noticias.obter_noticias(assunto)
             elif intent == "lembrete":
                 texto = params.get("texto", comando)
-                import re
                 match = re.search(r'(\d+)\s*(minutos?|min|horas?|h|segundos?|seg|s)', texto, re.IGNORECASE)
                 if match:
                     valor = int(match.group(1))

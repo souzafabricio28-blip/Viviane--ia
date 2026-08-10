@@ -32,6 +32,13 @@ intents:
     type: keyword
     words: ["info rede", "informacoes de rede", conexoes, "status da rede", wifi, conexão, conexao]
 
+  - name: abrir_programa
+    type: prefix
+    prefixes: [abrir, iniciar, executar, rodar, abra]
+    param: programa
+    stopwords: [o, a, de, do, da]
+    exclude: [programa, programas]
+
   - name: tocar_musica
     type: keyword
     words: ["tocar musica", "tocar música", "ouvir musica", "colocar musica", musica, playlist, spotify, "toca uma musica", "bota uma musica"]
@@ -73,13 +80,6 @@ intents:
         default: ""
 
   # ── Prefixo -> extrair resto ───────────────────────────────────
-  - name: abrir_programa
-    type: prefix
-    prefixes: [abrir, iniciar, executar, rodar, abra]
-    param: programa
-    stopwords: [o, a, de, do, da]
-    exclude: [programa, programas]
-
   - name: executar_cmd
     type: prefix
     prefixes: ["executar ", "rode ", "roda ", "cmd "]

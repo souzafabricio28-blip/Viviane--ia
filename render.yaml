@@ -14,6 +14,8 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
+      - key: WEATHER_API_KEY
+        value: 466a004fdfabc84f6e91ac8f3656e1ef
       - key: LANGUAGE
         value: pt-BR
       - key: ASSISTANT_NAME

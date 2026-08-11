@@ -19,7 +19,15 @@ function addMsg(tipo, texto, hora) {
 
 function setStatus(tipo) {
     statusDot.className = 'status-dot';
+    const st = document.getElementById('status-text');
     if (tipo) statusDot.classList.add(tipo);
+    if (st) {
+        st.textContent = tipo === 'thinking' ? 'pensando' : tipo === 'falando' ? 'falando' : 'online';
+        st.dataset.modo = tipo === 'thinking' ? 'thinking' : 'idle';
+    }
+    if (window.globalCoreColor) {
+        window.globalCoreColor.setHex(tipo === 'thinking' ? 0x0066ff : 0x00ffc8);
+    }
 }
 
 function mostrarTyping(m) {

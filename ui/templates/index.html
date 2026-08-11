@@ -4,15 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DarkSON - Painel Central</title>
-    <link rel="stylesheet" href="/static/style.css?v=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="/static/style.css?v=5">
 </head>
 <body>
     <div class="chat-panel">
         <div class="chat-header">
-            <span class="status-dot" id="status-dot"></span>
-            <div>
-                <h1>DarkSON</h1>
-                <div class="sub">PAINEL CENTRAL</div>
+            <div class="logo-wrap">
+                <svg viewBox="0 0 24 24" width="20" height="20" class="logo-icon">
+                    <path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17h8v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7zM9 21h6v-1H9z"/>
+                </svg>
+                <div>
+                    <h1>DarkSON</h1>
+                    <div class="sub">PAINEL CENTRAL</div>
+                </div>
+            </div>
+            <div class="status-wrap">
+                <span class="status-dot" id="status-dot"></span>
+                <span class="status-text" id="status-text">online</span>
             </div>
         </div>
 
@@ -20,7 +29,7 @@
             <button class="mic-btn" id="mic-btn"
                 onmousedown="iniciarGravacao()" onmouseup="pararGravacao()"
                 ontouchstart="iniciarGravacao()" ontouchend="pararGravacao()">
-                <svg viewBox="0 0 24 24" width="16" height="16">
+                <svg viewBox="0 0 24 24" width="18" height="18">
                     <path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
                 </svg>
             </button>
@@ -32,8 +41,8 @@
         <div class="text-input" style="position:relative">
             <div class="autocomplete-list" id="autocomplete-list"></div>
             <input type="text" id="text-input" placeholder="digite um comando..." onkeypress="if(event.key==='Enter')enviarTexto()">
-            <button onclick="enviarTexto()" class="send-btn">
-                <svg viewBox="0 0 24 24" width="14" height="14">
+            <button onclick="enviarTexto()" class="send-btn" title="Enviar">
+                <svg viewBox="0 0 24 24" width="16" height="16">
                     <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                 </svg>
             </button>
@@ -47,13 +56,14 @@
         </div>
 
         <div class="chat-toolbar">
-            <button onclick="limparConversa()">Limpar</button>
-            <button onclick="abrirComandos()">Comandos</button>
-            <button onclick="abrirMemorias()">Memorias</button>
-            <button onclick="abrirConhecimento()">Base</button>
-            <button onclick="downloadBanco()">DB</button>
-            <button onclick="testarMic()" title="Testar microfone">Mic</button>
-            <button class="theme-btn" onclick="toggleTema()">☾</button>
+            <button onclick="limparConversa()" title="Limpar conversa"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z"/></svg></button>
+            <button onclick="abrirComandos()" title="Comandos executados"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
+            <button onclick="abrirMemorias()" title="Memórias"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-9 5h6v2H9zm0 4h6v2H9zm0 4h4v2H9z"/></svg></button>
+            <button onclick="abrirConhecimento()" title="Base de conhecimento"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg></button>
+            <button onclick="downloadBanco()" title="Baixar banco de dados"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 2h9a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 6v11h13V8zm2 2h6v2H8zm0 3h9v2H8zm0 3h6v2H8z"/></svg></button>
+            <button onclick="testarMic()" title="Testar microfone"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1 4.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92z"/></svg></button>
+            <span class="toolbar-spacer"></span>
+            <button class="theme-btn" onclick="toggleTema()" title="Alternar tema">☾</button>
         </div>
     </div>
 
@@ -152,8 +162,10 @@
     controls.maxPolarAngle = Math.PI / 2;
     controls.minPolarAngle = 0.2;
 
-    const NUM_NODOS = 1800;
-    const NUM_CONNECTIONS = 3000;
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) && window.innerWidth < 900;
+    const NUM_NODOS = isMobile ? 600 : 1800;
+    const NUM_CONNECTIONS = isMobile ? 900 : 3000;
+    const NUM_COMETAS = isMobile ? 12 : 36;
 
     const colorCyan = new THREE.Color(0x00ffc8);
     const colorGreen = new THREE.Color(0x00ff88);
@@ -208,8 +220,10 @@
 
     fillHeadShape();
 
+    let conexoes = [];
+
     function buildLines() {
-        const lv = []; const lc = [];
+        const lv = []; const lc = []; conexoes = [];
         for (let i = 0; i < NUM_CONNECTIONS; i++) {
             const a = Math.floor(Math.random() * NUM_NODOS);
             const b = Math.floor(Math.random() * NUM_NODOS);
@@ -218,6 +232,7 @@
                 (nodeBasePos[a*3]-nodeBasePos[b*3])**2 + (nodeBasePos[a*3+1]-nodeBasePos[b*3+1])**2 + (nodeBasePos[a*3+2]-nodeBasePos[b*3+2])**2
             );
             if (dist > 0.8 || dist < 0.1) continue;
+            conexoes.push([a, b]);
             lv.push(nodeBasePos[a*3], nodeBasePos[a*3+1], nodeBasePos[a*3+2], nodeBasePos[b*3], nodeBasePos[b*3+1], nodeBasePos[b*3+2]);
             const bri = Math.max(0.1, 1 - dist / 0.8) * 0.5;
             const nearFace = (nodeBasePos[a*3+2] > 0.3 || nodeBasePos[b*3+2] > 0.3);
@@ -250,6 +265,43 @@
     const lineMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending });
     let lineMesh = new THREE.LineSegments(lineGeo, lineMat);
     scene.add(lineMesh);
+
+    // Núcleo energético central (pulsa com amplitude e cor do estado)
+    const coreMat = new THREE.MeshBasicMaterial({
+        color: 0x00ffc8, transparent: true, opacity: 0.9,
+        blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    const coreMesh = new THREE.Mesh(new THREE.SphereGeometry(0.13, 24, 24), coreMat);
+    scene.add(coreMesh);
+    const haloMat = new THREE.MeshBasicMaterial({
+        color: 0x00ffc8, transparent: true, opacity: 0.12,
+        blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.BackSide,
+    });
+    const haloMesh = new THREE.Mesh(new THREE.SphereGeometry(0.34, 24, 24), haloMat);
+    coreMesh.add(haloMesh);
+    const coreColor = new THREE.Color(0x00ffc8);
+    const coreTarget = new THREE.Color(0x00ffc8);
+
+    // Cometas: pontos viajando pelas conexões
+    const cometaGeo = new THREE.BufferGeometry();
+    const cometaPos = new Float32Array(NUM_COMETAS * 3);
+    const cometaA = new Int32Array(NUM_COMETAS);
+    const cometaB = new Int32Array(NUM_COMETAS);
+    const cometaT = new Float32Array(NUM_COMETAS);
+    const cometaSpeed = new Float32Array(NUM_COMETAS);
+    for (let i = 0; i < NUM_COMETAS; i++) {
+        const c = conexoes[Math.floor(Math.random() * conexoes.length)];
+        if (c) { cometaA[i] = c[0]; cometaB[i] = c[1]; }
+        cometaT[i] = Math.random();
+        cometaSpeed[i] = 0.15 + Math.random() * 0.5;
+    }
+    cometaGeo.setAttribute('position', new THREE.BufferAttribute(cometaPos, 3));
+    const cometaMat = new THREE.PointsMaterial({
+        color: 0x00ffc8, size: 0.045, transparent: true, opacity: 0.9,
+        blending: THREE.AdditiveBlending, sizeAttenuation: true, depthWrite: false,
+    });
+    const cometaMesh = new THREE.Points(cometaGeo, cometaMat);
+    scene.add(cometaMesh);
 
     const faceLoader = new OBJLoader();
     const faceUrl = 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/models/obj/Face.obj';
@@ -345,6 +397,7 @@
 
     let currentAmp = 0, targetAmp = 0, time = 0;
     const nodePosAttr = nodeGeo.attributes.position;
+    window.globalCoreColor = new THREE.Color(0x00ffc8);
 
     function connectSSE() {
         const evtSource = new EventSource('/api/stream');
@@ -352,7 +405,16 @@
             try {
                 const d = JSON.parse(event.data);
                 targetAmp = d.amplitude || 0;
-                document.getElementById('status-dot').className = targetAmp > 0.05 ? 'status-dot falando' : 'status-dot';
+                const falando = targetAmp > 0.05;
+                document.getElementById('status-dot').className = falando ? 'status-dot falando' : 'status-dot';
+                const st = document.getElementById('status-text');
+                if (st) {
+                    if (falando) st.textContent = 'falando';
+                    else if (st.dataset.modo !== 'thinking') st.textContent = 'online';
+                }
+                if (window.globalCoreColor) {
+                    window.globalCoreColor.setHex(falando ? 0xff0066 : 0x00ffc8);
+                }
             } catch(e) {}
         };
         evtSource.onerror = () => {
@@ -385,6 +447,32 @@
         nodeMesh.scale.set(s,s,s); lineMesh.scale.set(s,s,s);
         ring.rotation.z += 0.002;
         stars.rotation.y += 0.0003;
+
+        // Núcleo: cor suavizada pelo estado + pulso com amplitude
+        coreTarget.copy(globalCoreColor);
+        coreColor.lerp(coreTarget, 0.08);
+        coreMat.color.copy(coreColor);
+        haloMat.color.copy(coreColor);
+        const cp = 1 + amp * 0.55 + Math.sin(time * 3) * 0.05;
+        coreMesh.scale.set(cp, cp, cp);
+        haloMat.opacity = 0.08 + amp * 0.2;
+        ring.scale.set(1 + amp * 0.06, 1 + amp * 0.06, 1);
+
+        // Cometas viajando pelas conexões
+        const cPos = cometaGeo.attributes.position.array;
+        for (let i = 0; i < NUM_COMETAS; i++) {
+            cometaT[i] += cometaSpeed[i] * 0.003 * (0.4 + amp * 1.6);
+            if (cometaT[i] > 1) cometaT[i] -= 1;
+            const a = cometaA[i] * 3, b = cometaB[i] * 3;
+            const t = cometaT[i];
+            cPos[i*3] = nodeBasePos[a] + (nodeBasePos[b] - nodeBasePos[a]) * t;
+            cPos[i*3+1] = nodeBasePos[a+1] + (nodeBasePos[b+1] - nodeBasePos[a+1]) * t;
+            cPos[i*3+2] = nodeBasePos[a+2] + (nodeBasePos[b+2] - nodeBasePos[a+2]) * t;
+        }
+        cometaGeo.attributes.position.needsUpdate = true;
+        cometaMat.size = 0.035 + amp * 0.03;
+        cometaMat.opacity = 0.5 + amp * 0.45;
+
         controls.update();
         composer.render();
     }

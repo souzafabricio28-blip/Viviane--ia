@@ -108,7 +108,11 @@ function pararGravacao() {
     let off = 0;
     for (const c of gravChunks) { all.set(c, off); off += c.length; }
 
-    const maxAmp = Math.max(...all.map(Math.abs));
+    let maxAmp = 0;
+    for (let i = 0; i < all.length; i++) {
+        const v = Math.abs(all[i]);
+        if (v > maxAmp) maxAmp = v;
+    }
     mostrarAmplitude(maxAmp);
     if (maxAmp < 0.003) {
         micLabel.textContent = 'Nada detectado';

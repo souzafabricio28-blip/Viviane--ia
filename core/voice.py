@@ -164,7 +164,10 @@ def _gerar_mp3_edge(texto: str, saida: str | None = None) -> str | None:
             edge_tts_path = "edge-tts"
 
         proc = _subprocess.run(
-            [edge_tts_path, "--voice", settings.tts_voice, "--text", texto,
+            [edge_tts_path, "--voice", settings.tts_voice,
+             "--rate", settings.tts_rate,
+             "--pitch", settings.tts_pitch,
+             "--text", texto,
              "--write-media", destino],
             capture_output=True, timeout=30,
         )

@@ -38,13 +38,7 @@ _ENV_KEY_NAMES = [
     "WEATHER_API_KEY", "NEWS_API_KEY", "DARKSON_API_TOKEN",
 ]
 
-_VOZ_MASCULINA_PADRAO = "pt-BR-AntonioNeural"
-_VOZES_FEMININAS = (
-    "pt-BR-FranciscaNeural",
-    "pt-BR-ThalitaNeural",
-    "Microsoft Maria Desktop",
-    "Microsoft Zira Desktop",
-)
+_VOZ_PADRAO = "pt-BR-ThalitaMultilingualNeural"
 
 
 @dataclass
@@ -83,10 +77,16 @@ class Settings:
         default_factory=lambda: environ.get("OLLAMA_URL", "http://localhost:11434")
     )
     tts_voice: str = field(
-        default_factory=lambda: environ.get("TTS_VOICE", "pt-BR-AntonioNeural")
+        default_factory=lambda: environ.get("TTS_VOICE", _VOZ_PADRAO)
     )
     tts_engine: str = field(
         default_factory=lambda: environ.get("TTS_ENGINE", "edge")
+    )
+    tts_rate: str = field(
+        default_factory=lambda: environ.get("TTS_RATE", "+12%")
+    )
+    tts_pitch: str = field(
+        default_factory=lambda: environ.get("TTS_PITCH", "+8Hz")
     )
     api_host: str = field(
         default_factory=lambda: environ.get("DARKSON_HOST", "127.0.0.1")
@@ -112,13 +112,6 @@ class Settings:
 
     def __post_init__(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)
-        if (
-            self.tts_voice in _VOZES_FEMININAS
-            or "Francisca" in self.tts_voice
-            or "Maria" in self.tts_voice
-            or "Zira" in self.tts_voice
-        ):
-            self.tts_voice = _VOZ_MASCULINA_PADRAO
         if self.tts_engine not in ("edge", "sapi"):
             self.tts_engine = "edge"
         erros = self.validar()

@@ -473,7 +473,14 @@ class ControladorPC:
 
     # ── JANELAS ───────────────────────────────────────────────────
     def listar_janelas(self) -> list[dict]:
-        import pygetwindow as gw
+        import sys
+
+        if sys.platform != "win32":
+            return []
+        try:
+            import pygetwindow as gw
+        except ImportError:
+            return []
         wins = gw.getAllTitles()
         wins = [w for w in wins if w.strip() and w != "Program Manager"]
         ativo = gw.getActiveWindow()
@@ -487,7 +494,14 @@ class ControladorPC:
         return resultado
 
     def alternar_para_janela(self, termo: str) -> bool:
-        import pygetwindow as gw
+        import sys
+
+        if sys.platform != "win32":
+            return False
+        try:
+            import pygetwindow as gw
+        except ImportError:
+            return False
         termo_lower = termo.lower()
         wins = gw.getWindowsWithTitle(termo)
         if not wins:
@@ -508,7 +522,14 @@ class ControladorPC:
         return False
 
     def fechar_janela(self, termo: str) -> bool:
-        import pygetwindow as gw
+        import sys
+
+        if sys.platform != "win32":
+            return False
+        try:
+            import pygetwindow as gw
+        except ImportError:
+            return False
         termo_lower = termo.lower()
         for w in gw.getAllWindows():
             if termo_lower in w.title.lower():
@@ -549,7 +570,14 @@ class ControladorPC:
     # ── PROGRAMAS VISIVEIS (barra de tarefas / tela) ──────────────
     def programas_visiveis(self) -> list[dict]:
         """Retorna apenas programas com janela visivel na tela/barra de tarefas."""
-        import pygetwindow as gw
+        import sys
+
+        if sys.platform != "win32":
+            return []
+        try:
+            import pygetwindow as gw
+        except ImportError:
+            return []
         wins = gw.getAllTitles()
         wins = [w.strip() for w in wins if w.strip() and w != "Program Manager"]
         vistos: set[str] = set()
@@ -602,7 +630,14 @@ class ControladorPC:
 
     def programas_por_monitor(self) -> list[dict]:
         """Agrupa janelas visiveis por monitor. Cada monitor lista os programas abertos nele."""
-        import pygetwindow as gw
+        import sys
+
+        if sys.platform != "win32":
+            return []
+        try:
+            import pygetwindow as gw
+        except ImportError:
+            return []
         monitors = self._get_monitors()
         all_windows = gw.getAllWindows()
         # Filtra apenas janelas com titulo visivel

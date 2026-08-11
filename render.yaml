@@ -3,7 +3,7 @@ services:
     name: darkson-ia
     runtime: python
     plan: free
-    region: sao-paulo
+    region: oregon
     buildCommand: pip install -r requirements-web.txt
     startCommand: python ui/run_server.py
     healthCheckPath: /api/status

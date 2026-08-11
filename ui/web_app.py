@@ -32,8 +32,7 @@ from core.conversa import limpar, obter_historico, registrar
 from core.memoria import memoria as db_memoria
 from core.settings import settings
 from core.transcricao import transcrever_wav
-from core.transcricao import _get_model as _carregar_modelo_whisper
-from core.voice import falar, parar_fala
+from core.voice import gerar_tts_bytes
 
 def _autorizar() -> bool:
     if not settings.api_token:
@@ -42,19 +41,30 @@ def _autorizar() -> bool:
     return auth == f"Bearer {settings.api_token}"
 
 
+_ORIGENS_PERMITIDAS = {
+    o.strip() for o in settings.allow_origins.split(",") if o.strip()
+}
+
+
 @app.before_request
 def verificar_origem():
     if request.path.startswith("/static/"):
         return
     origem = request.headers.get("Origin", "")
-    if origem and "localhost" not in origem and "127.0.0.1" not in origem:
-        return jsonify({"erro": "Acesso nao autorizado"}), 403
+    if not origem:
+        return
+    if "localhost" in origem or "127.0.0.1" in origem:
+        return
+    if origem.rstrip("/") in _ORIGENS_PERMITIDAS:
+        return
+    if _ORIGENS_PERMITIDAS:
+        return jsonify({"erro": "Origem nao autorizada"}), 403
 
 
 @app.after_request
 def add_cors(response):
     origem = request.headers.get("Origin", "")
-    if "localhost" in origem or "127.0.0.1" in origem or not origem:
+    if "localhost" in origem or "127.0.0.1" in origem or not origem or origem.rstrip("/") in _ORIGENS_PERMITIDAS:
         response.headers["Access-Control-Allow-Origin"] = origem or "*"
     else:
         response.headers["Access-Control-Allow-Origin"] = ""
@@ -91,8 +101,22 @@ def api_enviar():
         return jsonify({"erro": "Texto vazio"}), 400
     registrar("usuario", texto)
     ass = get_assistente()
-    resposta = ass.executar_comando(texto, falar_resposta=True)
+    resposta = ass.executar_comando(texto, falar_resposta=False)
     return jsonify({"ok": True, "resposta": resposta})
+
+
+@app.route("/api/tts")
+def api_tts():
+    texto = request.args.get("texto", "").strip()
+    if not texto:
+        return jsonify({"erro": "Texto vazio"}), 400
+    audio = gerar_tts_bytes(texto)
+    if not audio:
+        return jsonify({"erro": "Falha ao gerar audio"}), 500
+    return Response(audio, mimetype="audio/mpeg", headers={
+        "Cache-Control": "no-store",
+        "Content-Disposition": 'inline; filename="tts.mp3"',
+    })
 
 
 @app.route("/api/falar", methods=["POST"])
@@ -322,9 +346,6 @@ def _abrir_edge(url: str) -> None:
 
 
 def iniciar_servidor(porta: int | None = None, host: str | None = None) -> None:
-    log.info("Carregando modelo de transcricao...")
-    _carregar_modelo_whisper()
-    log.info("Modelo de transcricao pronto.")
     if not sys.stdout or not hasattr(sys.stdout, "write"):
         sys.stdout = open(os.devnull, "w")
         sys.stderr = open(os.devnull, "w")
@@ -339,6 +360,7 @@ def iniciar_servidor(porta: int | None = None, host: str | None = None) -> None:
     if not settings.api_token:
         log.warning("DARKSON_API_TOKEN nao configurado: /api/executar desativada.")
     log.info("DarkSON rodando em http://%s:%d (voz: %s)", host, porta, settings.tts_voice)
+    log.info("Whisper carregado sob demanda na primeira transcricao.")
     app.run(host=host, port=porta, debug=False, threaded=True, use_reloader=False)
 
 

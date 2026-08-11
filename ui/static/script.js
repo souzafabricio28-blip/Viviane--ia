@@ -150,6 +150,16 @@ async function processarAudio(wavBlob) {
 }
 
 // ---- SEND ----
+let ttsAudio = null;
+
+function playTTS(texto) {
+    if (!texto || !texto.trim()) return;
+    if (ttsAudio) { ttsAudio.pause(); ttsAudio = null; }
+    const url = '/api/tts?texto=' + encodeURIComponent(texto.slice(0, 300));
+    ttsAudio = new Audio(url);
+    ttsAudio.play().catch(() => {});
+}
+
 async function enviarTexto() {
     const texto = textInput.value.trim();
     if (!texto) return;
@@ -166,7 +176,10 @@ async function enviarTexto() {
         });
         mostrarTyping(false);
         const d = await r.json();
-        if (d.resposta) addMsg('assistant', d.resposta, agora);
+        if (d.resposta) {
+            addMsg('assistant', d.resposta, agora);
+            playTTS(d.resposta);
+        }
         setStatus('');
     } catch(e) {
         mostrarTyping(false);

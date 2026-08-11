@@ -9,8 +9,12 @@ import webbrowser
 from pathlib import Path
 from typing import Any
 
-import keyboard
-import pyautogui
+try:
+    import keyboard
+    import pyautogui
+except ImportError:
+    keyboard = None
+    pyautogui = None
 
 from core.voice import falar
 from core.memoria import memoria as db_memoria

@@ -4,7 +4,6 @@ import base64
 import os
 from datetime import datetime
 
-import pyautogui
 from groq import Groq
 
 from core.settings import settings
@@ -16,6 +15,8 @@ _PASTA_IMAGENS = os.path.join(os.path.dirname(os.path.dirname(__file__)), "image
 def analisar_ecra(pergunta: str) -> str:
     falar("A analisar o conteúdo do ecrã...")
     try:
+        import pyautogui
+
         nome = f"print_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
         caminho = os.path.join(_PASTA_IMAGENS, nome)
         pyautogui.screenshot(caminho)

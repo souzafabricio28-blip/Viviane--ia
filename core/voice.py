@@ -14,8 +14,6 @@ import time
 import wave
 
 import numpy as np
-import sounddevice as sd
-import speech_recognition as sr
 
 from core.amplitude import set_amplitude, reset as reset_amplitude
 from core.settings import settings
@@ -112,7 +110,13 @@ def _tocar_com_amplitude(texto: str, engine: str = "") -> None:
 
 
 def _falar_via_edge(texto: str) -> None:
-    """Gera audio com edge-tts CLI e reproduz via winmm PlaySound."""
+    """Gera audio com edge-tts CLI e reproduz via winmm PlaySound (Windows)."""
+    import sys as _sys
+
+    if _sys.platform != "win32":
+        gerar_tts_bytes(texto)
+        return
+
     import ctypes
     import soundfile as sf
     from ctypes import wintypes
@@ -122,19 +126,9 @@ def _falar_via_edge(texto: str) -> None:
     tmp_mp3.close()
     tmp_wav.close()
     try:
-        edge_tts_path = os.path.join(os.path.dirname(sys.executable), "edge-tts.exe")
-        if not os.path.exists(edge_tts_path):
-            edge_tts_path = os.path.join(os.path.dirname(sys.executable), "edge-tts")
-        if not os.path.exists(edge_tts_path):
-            edge_tts_path = "edge-tts"
-
-        proc = subprocess.run(
-            [edge_tts_path, "--voice", settings.tts_voice, "--text", texto,
-             "--write-media", tmp_mp3.name],
-            capture_output=True, timeout=30,
-        )
-        if proc.returncode != 0:
-            raise RuntimeError(proc.stderr.decode()[:200])
+        mp3_path = _gerar_mp3_edge(texto, tmp_mp3.name)
+        if not mp3_path:
+            return
 
         data, sr = sf.read(tmp_mp3.name)
         if data.size == 0:
@@ -150,6 +144,61 @@ def _falar_via_edge(texto: str) -> None:
             pass
         try:
             os.unlink(tmp_wav.name)
+        except Exception:
+            pass
+
+
+def _gerar_mp3_edge(texto: str, saida: str | None = None) -> str | None:
+    """Gera MP3 via edge-tts. Retorna o caminho do arquivo (None em falha)."""
+    import subprocess as _subprocess
+    import sys as _sys
+
+    tmp_mp3 = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+    tmp_mp3.close()
+    destino = saida or tmp_mp3.name
+    try:
+        edge_tts_path = os.path.join(os.path.dirname(_sys.executable), "edge-tts.exe")
+        if not os.path.exists(edge_tts_path):
+            edge_tts_path = os.path.join(os.path.dirname(_sys.executable), "edge-tts")
+        if not os.path.exists(edge_tts_path):
+            edge_tts_path = "edge-tts"
+
+        proc = _subprocess.run(
+            [edge_tts_path, "--voice", settings.tts_voice, "--text", texto,
+             "--write-media", destino],
+            capture_output=True, timeout=30,
+        )
+        if proc.returncode != 0 or not os.path.exists(destino) or os.path.getsize(destino) == 0:
+            if saida is None:
+                try:
+                    os.unlink(destino)
+                except Exception:
+                    pass
+            return None
+        return destino
+    except Exception:
+        if saida is None:
+            try:
+                os.unlink(destino)
+            except Exception:
+                pass
+        return None
+
+
+def gerar_tts_bytes(texto: str) -> bytes | None:
+    """Gera MP3 via edge-tts e retorna os bytes. Usado pela web (navegador toca)."""
+    if not texto:
+        return None
+    texto = _limpar_texto_tts(texto)
+    caminho = _gerar_mp3_edge(texto)
+    if not caminho:
+        return None
+    try:
+        with open(caminho, "rb") as f:
+            return f.read()
+    finally:
+        try:
+            os.unlink(caminho)
         except Exception:
             pass
 
@@ -237,10 +286,18 @@ class GravadorVoz:
         self.timeout = timeout
         self.device_index = None
         self.energy_threshold = 50
+        self._sd = None
         self._calibrar_ambiente()
+
+    def _sounddevice(self):
+        if self._sd is None:
+            import sounddevice
+            self._sd = sounddevice
+        return self._sd
 
     def _calibrar_ambiente(self) -> None:
         try:
+            sd = self._sounddevice()
             audio_teste = sd.rec(
                 int(1.0 * RATE),
                 samplerate=RATE,
@@ -257,6 +314,7 @@ class GravadorVoz:
 
     def _gravar_audio(self) -> np.ndarray | None:
         try:
+            sd = self._sounddevice()
             audio = sd.rec(
                 int(self.timeout * RATE),
                 samplerate=RATE,
@@ -292,6 +350,8 @@ class GravadorVoz:
             return None
 
         wav_bytes = self._audio_para_wav(audio_np)
+        import speech_recognition as sr
+
         recognizer = sr.Recognizer()
 
         try:

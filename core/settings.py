@@ -92,12 +92,23 @@ class Settings:
         default_factory=lambda: environ.get("DARKSON_HOST", "127.0.0.1")
     )
     api_port: int = field(
-        default_factory=lambda: int(environ.get("DARKSON_PORT", "5000"))
+        default_factory=lambda: int(environ.get("PORT", environ.get("DARKSON_PORT", "5000")))
     )
     api_token: str = field(
         default_factory=lambda: environ.get("DARKSON_API_TOKEN", "")
     )
-    data_dir: Path = field(default_factory=lambda: Settings.BASE_DIR / "data")
+    data_dir: Path = field(
+        default_factory=lambda: Path(environ.get("DARKSON_DATA_DIR", str(Settings.BASE_DIR / "data")))
+    )
+    whisper_model: str = field(
+        default_factory=lambda: environ.get("DARKSON_WHISPER_MODEL", "base")
+    )
+    allow_origins: str = field(
+        default_factory=lambda: environ.get(
+            "DARKSON_ALLOW_ORIGINS",
+            "https://darkson-ia.onrender.com,https://darkson-ia.onrender.com/",
+        )
+    )
 
     def __post_init__(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)

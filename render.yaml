@@ -7,10 +7,6 @@ services:
     buildCommand: pip install -r requirements-web.txt
     startCommand: python ui/run_server.py
     healthCheckPath: /api/status
-    disk:
-      name: darkson-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: AI_PROVIDER
         value: groq
@@ -28,8 +24,6 @@ services:
         value: pt-BR-AntonioNeural
       - key: DARKSON_HOST
         value: 0.0.0.0
-      - key: DARKSON_DATA_DIR
-        value: /var/data
       - key: DARKSON_WHISPER_MODEL
         value: base
       - key: DARKSON_ALLOW_ORIGINS

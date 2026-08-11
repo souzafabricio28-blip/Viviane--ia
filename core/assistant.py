@@ -11,6 +11,7 @@ from typing import Any
 import psutil
 
 from core.brain import Cerebro
+from core.brain import _reclassificar_como_sistema, _tem_recusa
 from core.conhecimento import BaseConhecimento
 from core.conversa import registrar
 from core.memoria import memoria as db_memoria
@@ -518,6 +519,24 @@ class Assistente:
                 if visiveis:
                     ctx_extra += "\n[PROGRAMAS VISIVEIS NA TELA]\n" + "\n".join(f"- {p['nome']}" for p in visiveis[:20])
                 resposta = intencao.get("resposta", "")
+                if _tem_recusa(str(resposta)):
+                    reclass = _reclassificar_como_sistema(comando)
+                    if reclass:
+                        intent = reclass.get("intent")
+                        params = reclass.get("parametros", {})
+                        if intent == "comando_sistema":
+                            self.pc.executar_comando_sistema(params.get("acao", ""))
+                            return f"{params.get('acao', '')} executado."
+                        elif intent == "abrir_programa":
+                            self.pc.abrir_programa(params.get("programa", comando))
+                            return f"A abrir {params.get('programa', comando)}."
+                        elif intent == "executar_cmd":
+                            resultado = self.pc.executar_comando(params.get("comando", comando))
+                            return f"Comando executado. {resultado[:200]}"
+                        elif intent == "fechar_janela":
+                            if self.pc.fechar_janela(params.get("termo", "")):
+                                return f"Janela '{params.get('termo', '')}' fechada."
+                            return f"Janela '{params.get('termo', '')}' nao encontrada."
                 if not resposta:
                     comando_completo = comando
                     if ctx_extra:

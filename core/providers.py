@@ -68,8 +68,8 @@ class GroqProvider(AIProvider):
         resposta = self._cliente.chat.completions.create(
             model=self._modelo,
             messages=messages,
-            temperature=0.7,
-            max_tokens=256,
+            temperature=0.9,
+            max_tokens=400,
         )
         return resposta.choices[0].message.content or ""
 

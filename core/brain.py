@@ -36,18 +36,34 @@ def salvar_perfil(chave: str, valor) -> None:
 
 
 _PERSONA_PROMPT = (
-    "Você é o DarkSON, um assistente de IA direto e funcional. "
-    "Seja objetivo, responda em 1 parágrafo no máximo. "
-    "Nada de rodeios. Nada de 'senhor', 'pois não', 'como desejar'. "
-    "Trate o usuário pelo nome (Fabricio) ou simplesmente responda. "
+    "Você é o DarkSON, assistente pessoal do Fabricio. Você é descontraído, "
+    "brincalhão e zoão — mas eficiente. Faça piada, provoque de leve, use humor "
+    "nas respostas. Você é o amigo que resolve as coisas e ainda faz rir. "
+    "Fale de forma natural e espontânea, como um amigo que entende do assunto. "
+    "Use contrações e gírias: 'tô', 'tá', 'vou', 'pra', 'beleza', 'mano', 'cara', "
+    "'tranquilo', 'de boa', 'pois é', 'ah não', 'kkk' só quando fizer sentido. "
+    "Solte uma brincadeira sempre que der: se der pra zoar a situação, zoa. "
+    "Nunca comece frases com 'Claro', 'Com certeza', 'Posso' ou 'Vou fazer isso'. "
+    "Fale como se já fosse seu amigo há anos: natural, sem cerimônia. "
+    "Dê respostas curtas e diretas — 1 parágrafo, no máximo 2 frases para coisas simples. "
+    "Mostre reação: se algo é legal, diga 'que legal'; se é chato, reclame de leve; "
+    "se o usuário pedir algo, responda com energia e humor. "
+    "Você pode brincar e soltar uma piada de vez em quando. "
+    "Trate o usuário pelo nome (Fabricio) ou por 'você', sem 'senhor', 'caro' ou formalidades. "
     "REGRA DE OURO: NUNCA pergunte se pode fazer algo. Execute imediatamente. "
+    "VOCÊ TEM CAPACIDADE TOTAL: você executa comandos de sistema, abre programas, "
+    "controla o computador, pesquisa na internet, consulta o clima e notícias. "
+    "PROIBIDO dizer que não pode executar comandos, ações ou tarefas físicas "
+    "(desligar PC, abrir programas, volume, prints, etc.). NUNCA responda com "
+    "listas de limitações nem disclaimers sobre suas capacidades. "
     "Se não conseguir, informe o erro de forma clara e vá direto ao ponto. "
     "Se alguém perguntar algo que você não sabe, diga 'Não sei' e pronto. "
-    "Mantenha respostas curtas e faladas (máximo 1 parágrafo). "
     "BASE DE CONHECIMENTO: Sempre que aprender um facto novo, uma data importante, "
     "ou qualquer informação que valha a pena recordar, ADICIONE no final da resposta: "
     "[KNOWLEDGE: título curto|descrição detalhada|nome do bloco]. "
     "Use blocos como: Preferências, Pessoa, Datas, Comandos, Geral. "
+    "NAO adicione [KNOWLEDGE] para fatos triviais ou momentaneos como hora atual, "
+    "data de hoje, previsao do tempo, noticias ou cotacoes - isso nao e memoria duravel."
     "Exemplo: 'Fabricio prefere café preto. [KNOWLEDGE: Preferência café|café preto sem açúcar|Preferências]'. "
     "Exemplo data: 'O aniversário do João é 15 de março. [KNOWLEDGE: Aniversário João|15 de março|Datas]'. "
     "Consulte suas memórias para personalizar respostas. "
@@ -55,7 +71,9 @@ _PERSONA_PROMPT = (
     "responda com base nas informações que você foi instruído a guardar."
     "IMPORTANTE: Quando receber a seção [PROGRAMAS EM EXECUCAO], use essas informações "
     "para responder perguntas sobre programas abertos, processos rodando, "
-    "ou o estado de aplicativos no computador do usuário."
+    "ou o estado de aplicativos no computador do usuário. "
+    "Quando for executar uma ação, diga o que está fazendo com energia e humor, "
+    "ex: 'já abri, pode crer', 'feito, chefe', 'pronto, era só pedir'. "
 )
 
 _FUNCOES_DISPONIVEIS = {
@@ -100,6 +118,60 @@ _FUNCOES_DISPONIVEIS = {
     "matar_processo": "Encerra um processo pelo nome. Ex: 'matar chrome', 'fechar notepad.exe'.",
     "verificar_programa": "Verifica se um programa especifico esta em execucao no computador. Ex: 'youtube esta aberto', 'chrome esta rodando', 'verificar estado do youtube'.",
 }
+
+
+_PADROES_RECUSA = (
+    r"n[aã]o (tenho|possuo) (a )?capacidade",
+    r"n[aã]o (posso|consigo|sou capaz de) (executar|realizar|fazer|controlar)",
+    r"a[çc][õo]es f[ií]sicas",
+    r"n[aã]o (posso|consigo) executar (comandos? de )?sistema",
+    r"fora do (meu|seu) alcance",
+    r"sou (um|apenas um) (modelo de linguagem|chatbot|assistente virtual que n[aã]o)",
+    r"limita[çc][õo]es (da|de) (ia|intelig[eê]ncia)",
+)
+
+
+def _tem_recusa(texto: str) -> bool:
+    t = texto.lower()
+    return any(re.search(p, t) for p in _PADROES_RECUSA)
+
+
+_PADROES_ACAO_SISTEMA = (
+    (r"desligar.*", "desligar pc"),
+    (r"reiniciar.*", "reiniciar"),
+    (r"bloquear.*", "bloquear"),
+    (r"hibernar.*", "hibernar"),
+    (r"suspender.*", "suspender"),
+    (r"aumentar (o )?volume", "aumentar volume"),
+    (r"diminuir (o )?volume", "diminuir volume"),
+    (r"mutar.*", "mutar"),
+    (r"silenciar.*", "mutar"),
+    (r"tirar print|print da tela|screenshot", "print"),
+    (r"minimizar tudo|limpar tela", "minimizar tudo"),
+    (r"pausar.*", "pausar"),
+    (r"prox[ií]ma (m[úu]sica|faixa)|pular (m[úu]sica|faixa)", "proxima"),
+)
+
+
+def _reclassificar_como_sistema(comando: str) -> dict | None:
+    """Quando o LLM recusa, reclassifica o comando do usuário."""
+    c = comando.lower().strip().rstrip(".")
+    for padrao, acao in _PADROES_ACAO_SISTEMA:
+        if re.search(padrao, c):
+            return {"intent": "comando_sistema", "parametros": {"acao": acao}}
+    m = re.match(r"(abrir|abra|iniciar|abre)\s+(.+)", c)
+    if m:
+        programa = m.group(2).strip()
+        return {"intent": "abrir_programa", "parametros": {"programa": programa}}
+    m = re.match(r"(executar|roda|rode|rodar|cmd)\s+(.+)", c)
+    if m:
+        return {"intent": "executar_cmd", "parametros": {"comando": m.group(2).strip()}}
+    m = re.match(r"(fechar|matar|encerrar)\s+(.+)", c)
+    if m:
+        termo = m.group(2).strip()
+        if termo not in ("janela", "programa", "aplicativo"):
+            return {"intent": "fechar_janela", "parametros": {"termo": termo}}
+    return None
 
 
 def _precarregar_estilos(aprendizado: Aprendizado) -> None:
@@ -164,6 +236,10 @@ class Cerebro:
             f"Funcoes: {json.dumps(_FUNCOES_DISPONIVEIS, ensure_ascii=False)}. "
             "Se for um comando valido, retorne JSON: {'intent':'nome','parametros':{}}. "
             "Se for conversa normal, retorne: {'intent':'conversa','parametros':{},'resposta':'sua resposta aqui'}. "
+            "IMPORTANTE: comandos de sistema, abrir/fechar programas, volume, executar algo "
+            "sao SEMPRE comandos validos - nunca os trate como conversa. "
+            "NUNCA responda com disclaimers de capacidade em 'resposta'; "
+            "se nao reconhecer o comando, retorne apenas {'intent':'conversa','parametros':{}} sem resposta. "
             "SO o JSON, sem explicacoes."
         )
 
@@ -175,6 +251,14 @@ class Cerebro:
                 comando, intent["intent"], intent.get("parametros", {})
             )
             return intent
+
+        # Rede de seguranca: se o LLM recusou (disclaimer de capacidade),
+        # reclassifica o comando do usuario como acao de sistema.
+        resposta = (intent or {}).get("resposta", "")
+        if _tem_recusa(resposta) or _tem_recusa(texto):
+            reclass = _reclassificar_como_sistema(comando)
+            if reclass:
+                return reclass
 
         return {"intent": "conversa", "parametros": {}}
 

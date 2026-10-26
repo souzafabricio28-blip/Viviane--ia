@@ -1,2 +1,17 @@
-   [tool.vercel]
-   entrypoint = "ui.web_app:app"
+[project]
+name = "viviane-ia"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "flask",
+    "flask-cors",
+    "python-dotenv",
+    "requests",
+    "pyyaml",
+    "groq",
+    "google-generativeai",
+    "edge-tts",
+]
+
+[tool.vercel]
+entrypoint = "ui.web_app:app"
